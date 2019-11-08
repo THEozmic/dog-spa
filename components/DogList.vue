@@ -5,6 +5,18 @@
     >
       <DogDetails :closeModal="closeModal" :details="details" :errorMessage="errorMessage" />
     </div>
+    <form class="flex justify-center p-10">
+      <div class="lg:mx-20 w-full">
+        <input
+          class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+          id="inline-full-name"
+          type="text"
+          placeholder="Search by breed"
+          v-model="searchedBreed"
+          @input="onSearch"
+        />
+      </div>
+    </form>
     <masonry :cols="{default: 4, 1000: 3, 700: 2, 400: 1}" :gutter="{default: '30px', 700: '15px'}">
       <div
         class="mb-4 px-4 py-2 m-2 relative cursor-pointer"
@@ -12,7 +24,7 @@
         :key="index"
       >
         <div class="max-w-sm rounded overflow-hidden shadow-lg" @click="() => showDog(dog)">
-          <img v-lazy="dog" class="w-full z-10 relative" />
+          <img v-lazy="dog" class="w-full z-10 relative dog" />
           <div class="spinner">
             <div class="spinner-icon"></div>
           </div>
@@ -34,7 +46,8 @@ export default {
       breedName: "",
       detailsVisible: false,
       details: {},
-      errorMessage: ""
+      errorMessage: "",
+      searchedBreed: ""
     };
   },
   components: {
@@ -42,6 +55,29 @@ export default {
     DogDetails
   },
   methods: {
+    async onSearch() {
+      this.list = [];
+
+      if (this.searchedBreed === "") {
+        let { message } = await this.$axios.$get(
+          `https://dog.ceo/api/breed/${this.breedName}/images`
+        );
+
+        this.list = message;
+        return;
+      }
+
+      this.$axios
+        .$get(`https://dog.ceo/api/breed/${this.searchedBreed}/images`)
+        .then(({ message }) => {
+          if (message.length) {
+            this.breedName = this.searchedBreed;
+
+            this.list = message;
+          }
+        })
+        .catch(e => {});
+    },
     closeModal() {
       this.detailsVisible = false;
     },
@@ -58,33 +94,45 @@ export default {
           };
         })
         .catch(e => {
+          if (!e.response) {
+            this.detailsVisible = false;
+            return;
+          }
           if (e.response.status === 404) {
             this.errorMessage = "No data on this breed";
           }
+          this.details = {
+            breed: { name: this.breedName },
+            dog
+          };
         });
-
-      this.details = {
-        breed: { name: this.breedName },
-        dog
-      };
     },
     async infiniteHandler($state) {
-      let breedResponse = await this.$axios.$get(
-        `https://dog.ceo/api/breeds/list/random`
-      );
+      let url = "";
 
-      this.breedName = breedResponse.message;
+      if (this.searchedBreed === "") {
+        let breedResponse = await this.$axios.$get(
+          `https://dog.ceo/api/breeds/list/random`
+        );
 
-      let { message } = await this.$axios.$get(
-        `https://dog.ceo/api/breed/${this.breedName}/images`
-      );
-
-      if (message.length) {
-        this.list.push(...message);
-        $state.loaded();
+        this.breedName = breedResponse.message;
+        url = `https://dog.ceo/api/breed/${breedResponse.message}/images`;
       } else {
-        $state.complete();
+        url = `https://dog.ceo/api/breed/${this.searchedBreed}/images`;
       }
+      await this.$axios
+        .$get(url)
+        .then(({ message }) => {
+          if (message.length) {
+            this.list.push(...message);
+            $state.loaded();
+          } else {
+            $state.complete();
+          }
+        })
+        .catch(e => {
+          $state.complete();
+        });
     }
   }
 };
@@ -96,6 +144,10 @@ export default {
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   grid-auto-rows: 40px;
+}
+
+.dog {
+  min-height: 5rem;
 }
 
 .spinner {

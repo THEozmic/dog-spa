@@ -2,7 +2,7 @@
   <!-- Add margin if you want to see some of the overlay behind the modal-->
   <div class="modal-content text-left z-20 fixed p-10 w-full h-full">
     <!--Title-->
-    <div class="bg-white w-full rounded" v-if="details.dog">
+    <div class="bg-white w-full rounded max-h-full overflow-auto relative" v-if="details.dog">
       <div class="flex justify-between items-center p-10 pb-0">
         <p class="text-2xl font-bold">Dog Details</p>
         <button class="modal-close cursor-pointer z-50" @click="closeModal">
@@ -20,12 +20,12 @@
         </button>
       </div>
       <div class="p-10">
-        <div class="flex">
+        <div class="inline sm:flex">
           <img
             v-lazy="details.dog"
-            class="object-cover z-10 relative rounded shadow-md details-image"
+            class="object-cover z-10 relative rounded shadow-md details-image w-full sm:w-2/3"
           />
-          <div class="mx-10">
+          <div class="mt-10 sm:mt-0 mx-10">
             <div class="mb-10">
               <div class="text-lg uppercase font-semibold text-gray-500">Name</div>
               <div class="capitalize text-2xl">{{details.breed.name}}</div>
@@ -70,6 +70,5 @@ export default {
 
 .details-image {
   height: 25rem;
-  width: 25rem;
 }
 </style>
