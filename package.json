@@ -1,0 +1,27 @@
+{
+  "name": "dog-spa",
+  "version": "1.0.0",
+  "description": "My impeccable Nuxt.js project",
+  "author": "Michael Ozoemena",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.8.0",
+    "@nuxtjs/pwa": "^3.0.0-0",
+    "axios-cache-adapter": "^2.4.1",
+    "nuxt": "^2.0.0",
+    "vue-client-only": "^2.0.0",
+    "vue-infinite-loading": "^2.4.4",
+    "vue-lazyload": "^1.3.3",
+    "vue-masonry": "^0.11.8",
+    "vue-masonry-css": "^1.0.3"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^1.0.0"
+  }
+}
